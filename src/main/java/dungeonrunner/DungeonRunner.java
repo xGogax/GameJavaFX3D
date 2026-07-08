@@ -4,6 +4,7 @@ import dungeonrunner.enemies.CircularSaw;
 import dungeonrunner.enemies.FloorSpike;
 import dungeonrunner.hud.ElapsedTimeDisplay;
 import dungeonrunner.hud.HealthIndicator;
+import dungeonrunner.hud.LevelSelector;
 import dungeonrunner.hud.Minimap;
 import dungeonrunner.items.Key;
 import dungeonrunner.tiles.Pillar;
@@ -242,6 +243,20 @@ public class DungeonRunner extends Application {
 
     @Override
     public void start ( Stage stage ) {
+        LevelSelector selector = new LevelSelector(
+                Constants.SCREEN_WIDTH,
+                Constants.SCREEN_HEIGHT,
+                stage,
+                this
+        );
+        Scene menuScene = new Scene(selector, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+        stage.setTitle("Izaberi nivo");
+        stage.setScene(menuScene);
+        stage.setResizable(false);
+        stage.show();
+    }
+
+    public void startGame(Stage stage) {
         this.player = new Player ( Constants.PLAYER_START_X, Constants.PLAYER_START_Y );
         this.world = new Group ( );
 

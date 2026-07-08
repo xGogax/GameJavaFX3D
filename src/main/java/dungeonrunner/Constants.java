@@ -11,16 +11,7 @@ public class Constants {
     public static final int SPIKE = 5;
     public static final int KEY = 6;
     
-    public static final int[][] MAP = {
-            {1,1,1,1,1,1,1,1,1},
-            {1,0,0,0,1,0,5,0,1},
-            {1,0,1,0,4,0,1,0,1},
-            {1,0,1,3,1,0,1,0,1},
-            {1,0,0,0,0,0,0,5,1},
-            {1,0,1,0,1,1,6,1,1},
-            {1,0,0,0,0,0,0,2,1},
-            {1,1,1,1,1,1,1,1,1},
-    };
+    public static int[][] MAP = MapSelector.TEST;
 
     public static final int SCREEN_WIDTH  = 800;
     public static final int SCREEN_HEIGHT = 600;
