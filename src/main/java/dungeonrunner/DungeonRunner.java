@@ -2,11 +2,14 @@ package dungeonrunner;
 
 import dungeonrunner.enemies.CircularSaw;
 import dungeonrunner.enemies.FloorSpike;
+import dungeonrunner.hud.HealthIndicator;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -28,6 +31,7 @@ public class DungeonRunner extends Application {
     private AnimationTimer timer;
     private List<CircularSaw> saws;
     private List<FloorSpike> spikes;
+    private HealthIndicator healthIndicator;
 
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
@@ -213,16 +217,22 @@ public class DungeonRunner extends Application {
         setupLighting ( );
         setupCamera ( );
 
-        Scene scene = new Scene (
+        SubScene sub3D = new SubScene (
                 this.world,
                 Constants.SCREEN_WIDTH,
                 Constants.SCREEN_HEIGHT,
                 true,
                 SceneAntialiasing.BALANCED
         );
-        scene.setCamera ( this.camera );
+        sub3D.setCamera ( this.camera );
 
-        setupInput ( scene );
+        this.healthIndicator = new HealthIndicator(this.player.getHealth());
+        StackPane root = new StackPane(sub3D, this.healthIndicator.getNode());
+        StackPane.setAlignment ( this.healthIndicator.getNode(), Pos.TOP_LEFT);
+
+        Scene scene = new Scene (root, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT );
+
+        setupInput(scene);
 
         this.timer = new AnimationTimer ( ) {
             @Override
@@ -240,7 +250,9 @@ public class DungeonRunner extends Application {
                 for(CircularSaw saw : DungeonRunner.this.saws) {
                     saw.update(t);
                     if(saw.hitsPlayer(player)) {
-                        System.out.println("Player hit by saw!");
+                        player.takeHit();
+                        healthIndicator.update(player.getHealth());
+                        System.out.println("Player hit by saw! (Life: " + player.getHealth() + ")");
                         player.restartPosition();
                     }
                 }
@@ -249,12 +261,19 @@ public class DungeonRunner extends Application {
                 for(FloorSpike spike : DungeonRunner.this.spikes) {
                     spike.update(t);
                     if(spike.hitsPlayer(player)) {
-                        System.out.println("Player hit by spike!");
+                        player.takeHit();
+                        healthIndicator.update(player.getHealth());
+                        System.out.println("Player hit by spike! (Life: " + player.getHealth() + ")");
                         player.restartPosition();
                     }
                 }
 
-                if ( player.isAtExit ( map ) ) {
+                if (player.getHealth() == 0) {
+                    System.out.println("Game Over! Player has no more lives.");
+                    timer.stop();
+                }
+
+                if (player.isAtExit(map)) {
                     timer.stop ( );
                 }
             }

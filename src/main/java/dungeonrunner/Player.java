@@ -16,6 +16,8 @@ public class Player {
     private double startX;
     private double startY;
 
+    private int health = 3;
+
     public Player ( double startX, double startY ) {
         this.positionX = startX;
         this.positionY = startY;
@@ -29,6 +31,7 @@ public class Player {
     public double getPositionY ( ) { return this.positionY; }
     public double getDirectionX ( ) { return this.directionX; }
     public double getDirectionY ( ) { return this.directionY; }
+    public int getHealth() { return this.health; }
 
     public void setMoveForward  ( boolean newValue ) { this.moveForward  = newValue; }
     public void setMoveBackward ( boolean newValue ) { this.moveBackward = newValue; }
@@ -39,6 +42,9 @@ public class Player {
         this.positionX = this.startX;
         this.positionY = this.startY;
     }
+
+    public void gainHealth() { this.health++; }
+    public void takeHit() { this.health--; }
 
     public void update ( DungeonMap map ) {
         if ( this.moveForward ) {
