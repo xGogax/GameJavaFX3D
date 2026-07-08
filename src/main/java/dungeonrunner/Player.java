@@ -13,9 +13,14 @@ public class Player {
     private boolean rotateLeft;
     private boolean rotateRight;
 
+    private double startX;
+    private double startY;
+
     public Player ( double startX, double startY ) {
         this.positionX = startX;
         this.positionY = startY;
+        this.startX = startX;
+        this.startY = startY;
         this.directionX =  1.0;
         this.directionY =  0.0;
     }
@@ -29,6 +34,11 @@ public class Player {
     public void setMoveBackward ( boolean newValue ) { this.moveBackward = newValue; }
     public void setRotateLeft   ( boolean newValue ) { this.rotateLeft   = newValue; }
     public void setRotateRight  ( boolean newValue ) { this.rotateRight  = newValue; }
+
+    public void restartPosition() {
+        this.positionX = this.startX;
+        this.positionY = this.startY;
+    }
 
     public void update ( DungeonMap map ) {
         if ( this.moveForward ) {

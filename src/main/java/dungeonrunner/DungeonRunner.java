@@ -240,7 +240,8 @@ public class DungeonRunner extends Application {
                 for(CircularSaw saw : DungeonRunner.this.saws) {
                     saw.update(t);
                     if(saw.hitsPlayer(player)) {
-                        System.out.println("Player hit by saw! Game over.");
+                        System.out.println("Player hit by saw!");
+                        player.restartPosition();
                     }
                 }
 
@@ -248,7 +249,8 @@ public class DungeonRunner extends Application {
                 for(FloorSpike spike : DungeonRunner.this.spikes) {
                     spike.update(t);
                     if(spike.hitsPlayer(player)) {
-                        System.out.println("Player hit by spike! Game over.");
+                        System.out.println("Player hit by spike!");
+                        player.restartPosition();
                     }
                 }
 

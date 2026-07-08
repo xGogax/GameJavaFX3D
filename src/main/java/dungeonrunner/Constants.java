@@ -42,7 +42,7 @@ public class Constants {
 
     public static final double PLAYER_START_X        = 1.5;
     public static final double PLAYER_START_Y        = 1.5;
-    public static final double PLAYER_MOVE_SPEED     = 0.02; //0.002
-    public static final double PLAYER_ROTATION_SPEED = 0.05; //0.005
+    public static final double PLAYER_MOVE_SPEED     = 0.01; //0.002
+    public static final double PLAYER_ROTATION_SPEED = 0.01; //0.005
     public static final double PLAYER_RADIUS         = 0.25;
 }
