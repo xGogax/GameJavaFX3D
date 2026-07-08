@@ -16,6 +16,8 @@ public class Player {
     private double startX;
     private double startY;
 
+    private boolean hasKey = false;
+
     private int health = 3;
 
     public Player ( double startX, double startY ) {
@@ -45,6 +47,8 @@ public class Player {
 
     public void gainHealth() { this.health++; }
     public void takeHit() { this.health--; }
+
+    public void setHasKey() { this.hasKey = true; }
 
     public void update ( DungeonMap map ) {
         if ( this.moveForward ) {
@@ -93,7 +97,8 @@ public class Player {
 
     private boolean isFree ( int x, int y, DungeonMap map ) {
         int tile = map.get ( x, y );
-        return tile == Constants.EMPTY || tile == Constants.EXIT || tile==Constants.SAW || tile==Constants.SPIKE;
+        if(tile == Constants.EXIT && !this.hasKey) return false;
+        return tile == Constants.EMPTY || tile == Constants.EXIT || tile==Constants.SAW || tile==Constants.SPIKE || tile==Constants.KEY;
     }
 
     private void rotate ( double angle ) {

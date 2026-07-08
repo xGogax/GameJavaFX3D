@@ -3,6 +3,7 @@ package dungeonrunner;
 import dungeonrunner.enemies.CircularSaw;
 import dungeonrunner.enemies.FloorSpike;
 import dungeonrunner.hud.HealthIndicator;
+import dungeonrunner.items.Key;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -43,12 +44,17 @@ public class DungeonRunner extends Application {
     private StackPane overlay;
     private Text overlayText;
 
+    private Key key;
+    private Box exitBox;
+
+    private PhongMaterial exitMaterial;
+
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
         wallMaterial.setDiffuseMap(new Image(DungeonRunner.class.getResourceAsStream("bricks.jpg")));
         wallMaterial.setSpecularColor ( Constants.WALL_SPECULAR_COLOR );
 
-        PhongMaterial exitMaterial = new PhongMaterial();
+        exitMaterial = new PhongMaterial();
         exitMaterial.setDiffuseColor ( Constants.EXIT_DIFFUSE_COLOR );
         exitMaterial.setSpecularColor ( Constants.EXIT_SPECULAR_COLOR );
 
@@ -99,8 +105,10 @@ public class DungeonRunner extends Application {
                             row * Constants.CELL_SIZE + Constants.CELL_SIZE / 2.0
                     );
                     wall.getTransforms ( ).add ( wallTranslate );
-
-                    wall.setMaterial ( tile == Constants.EXIT ? exitMaterial : wallMaterial );
+                    wall.setMaterial(wallMaterial);
+                    if(tile == Constants.EXIT) {
+                        this.exitBox = wall;
+                    }
 
                     this.world.getChildren().add ( wall );
                 } else if (tile == Constants.PILLAR) {
@@ -118,6 +126,9 @@ public class DungeonRunner extends Application {
                     FloorSpike fs = new FloorSpike(cx, cz, (double)this.spikes.size() * 0.4);
                     this.spikes.add(fs);
                     this.world.getChildren().add(fs.getNode());
+                } else if (tile == Constants.KEY) {
+                    this.key = new Key(column, row);
+                    this.world.getChildren().add(this.key.getNode());
                 }
             }
         }
@@ -293,13 +304,24 @@ public class DungeonRunner extends Application {
                     }
                 }
 
+                // Register key coll
+                if (key != null) {
+                    key.update(t);
+                    if (key.tryCollect(player)) {
+                        player.setHasKey();
+                        if (exitBox != null) {
+                            exitBox.setMaterial(exitMaterial);
+                        }
+                    }
+                }
+
                 if (player.getHealth() == 0) {
                     System.out.println("Game Over! Player has no more lives.");
                     timer.stop();
                     showGameOverOverlay("Izgubili ste!", Color.DARKRED);
                 }
 
-                if (player.isAtExit(map)) {
+                if (player.isAtExit(map) && (key == null || key.isCollected())) {
                     System.out.println("Congratulations! You've reached the exit.");
                     timer.stop();
                     showGameOverOverlay("Pobegli ste!", Color.GOLD);
