@@ -10,6 +10,7 @@ public class Constants {
     public static final int SAW = 4;
     public static final int SPIKE = 5;
     public static final int KEY = 6;
+    public static final int POTION = 7;
     
     public static int[][] MAP = MapSelector.TEST;
 

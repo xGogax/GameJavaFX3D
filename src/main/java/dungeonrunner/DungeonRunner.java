@@ -7,6 +7,7 @@ import dungeonrunner.hud.HealthIndicator;
 import dungeonrunner.hud.LevelSelector;
 import dungeonrunner.hud.Minimap;
 import dungeonrunner.items.Key;
+import dungeonrunner.items.Potion;
 import dungeonrunner.items.spawners.HeartSpawner;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
@@ -42,6 +43,7 @@ public class DungeonRunner extends Application {
 
     private List<CircularSaw> saws;
     private List<FloorSpike> spikes;
+    private List<Potion> potions;
 
     private HealthIndicator healthIndicator;
 
@@ -76,6 +78,7 @@ public class DungeonRunner extends Application {
         this.map = new DungeonMap ( Constants.MAP );
         this.saws = new ArrayList<>();
         this.spikes = new ArrayList<>();
+        this.potions = new ArrayList<>();
 
         int    rows       = this.map.getRows ( );
         int    columns    = this.map.getCols ( );
@@ -138,6 +141,13 @@ public class DungeonRunner extends Application {
                 } else if (tile == Constants.KEY) {
                     this.key = new Key(column, row);
                     this.world.getChildren().add(this.key.getNode());
+                } else if (tile == Constants.POTION) {
+                    double cx = column * Constants.CELL_SIZE + Constants.CELL_SIZE / 2.0;
+                    double cz = row * Constants.CELL_SIZE + Constants.CELL_SIZE / 2.0;
+
+                    Potion potion = new Potion(cx, cz, (double)(this.potions.size() / 2) * 0.35);
+                    this.potions.add(potion);
+                    this.world.getChildren().add(potion.getNode());
                 }
             }
         }
@@ -339,6 +349,15 @@ public class DungeonRunner extends Application {
                     }
                 }
 
+                for(Potion potion : DungeonRunner.this.potions) {
+                    potion.update(t);
+                    if(potion.tryCollect(player)) {
+                        player.applyControlInversion(t, Potion.EFFECT_DURATION);
+                        System.out.println("SELECTED POTION");
+                        world.getChildren().remove(potion.getNode());
+                    }
+                }
+
                 // Register key coll
                 if (key != null) {
                     key.update(t);
@@ -363,7 +382,7 @@ public class DungeonRunner extends Application {
                 }
 
                 elapsedTimeDisplay.update(t);
-                minimap.update(player, key);
+                minimap.update(player, key, potions);
 
                 heartSpawner.update(t, player, healthIndicator);
             }
