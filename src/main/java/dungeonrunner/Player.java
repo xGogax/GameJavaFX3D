@@ -18,6 +18,7 @@ public class Player {
 
     private boolean hasKey = false;
 
+    private final int maxHealth;
     private int health = 3;
 
     public Player ( double startX, double startY ) {
@@ -27,6 +28,7 @@ public class Player {
         this.startY = startY;
         this.directionX =  1.0;
         this.directionY =  0.0;
+        this.maxHealth = health;
     }
 
     public double getPositionX ( ) { return this.positionX; }
@@ -34,6 +36,7 @@ public class Player {
     public double getDirectionX ( ) { return this.directionX; }
     public double getDirectionY ( ) { return this.directionY; }
     public int getHealth() { return this.health; }
+    public int getMaxHealth() { return this.maxHealth; }
 
     public void setMoveForward  ( boolean newValue ) { this.moveForward  = newValue; }
     public void setMoveBackward ( boolean newValue ) { this.moveBackward = newValue; }

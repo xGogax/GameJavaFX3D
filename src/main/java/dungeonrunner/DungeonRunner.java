@@ -7,6 +7,7 @@ import dungeonrunner.hud.HealthIndicator;
 import dungeonrunner.hud.LevelSelector;
 import dungeonrunner.hud.Minimap;
 import dungeonrunner.items.Key;
+import dungeonrunner.items.spawners.HeartSpawner;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -54,6 +55,8 @@ public class DungeonRunner extends Application {
     private Minimap minimap;
 
     private ElapsedTimeDisplay elapsedTimeDisplay;
+
+    private HeartSpawner heartSpawner;
 
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
@@ -138,6 +141,8 @@ public class DungeonRunner extends Application {
                 }
             }
         }
+
+        this.heartSpawner = new HeartSpawner(this.map, this.world);
     }
 
     private void showGameOverOverlay(String message, Color textColor) {
@@ -359,6 +364,8 @@ public class DungeonRunner extends Application {
 
                 elapsedTimeDisplay.update(t);
                 minimap.update(player, key);
+
+                heartSpawner.update(t, player, healthIndicator);
             }
         };
         timer.start ( );
