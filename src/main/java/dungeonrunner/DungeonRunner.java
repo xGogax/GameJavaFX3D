@@ -2,7 +2,9 @@ package dungeonrunner;
 
 import dungeonrunner.enemies.CircularSaw;
 import dungeonrunner.enemies.FloorSpike;
+import dungeonrunner.hud.ElapsedTimeDisplay;
 import dungeonrunner.hud.HealthIndicator;
+import dungeonrunner.hud.Minimap;
 import dungeonrunner.items.Key;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
@@ -46,8 +48,11 @@ public class DungeonRunner extends Application {
 
     private Key key;
     private Box exitBox;
-
     private PhongMaterial exitMaterial;
+
+    private Minimap minimap;
+
+    private ElapsedTimeDisplay elapsedTimeDisplay;
 
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
@@ -253,7 +258,11 @@ public class DungeonRunner extends Application {
         );
         sub3D.setCamera ( this.camera );
 
+        this.minimap = new Minimap(this.map);
+
         this.healthIndicator = new HealthIndicator(this.player.getHealth());
+
+        this.elapsedTimeDisplay = new ElapsedTimeDisplay();
 
         // GAME OVER / VICTORY OVERLAY
         this.overlayText = new Text();
@@ -263,8 +272,10 @@ public class DungeonRunner extends Application {
         this.overlay.setVisible(false);
 
         // pravljenje HUD-a
-        StackPane root = new StackPane(sub3D, this.healthIndicator.getNode(), this.overlay);
-        StackPane.setAlignment ( this.healthIndicator.getNode(), Pos.TOP_LEFT);
+        StackPane root = new StackPane(sub3D, this.healthIndicator.getNode(), this.minimap.getNode(),this.elapsedTimeDisplay.getNode() ,this.overlay);
+        StackPane.setAlignment(this.healthIndicator.getNode(), Pos.TOP_LEFT);
+        StackPane.setAlignment(this.minimap.getNode(), Pos.BOTTOM_RIGHT);
+        StackPane.setAlignment(this.elapsedTimeDisplay.getNode(), Pos.TOP_RIGHT);
 
         Scene scene = new Scene (root, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT );
 
@@ -330,6 +341,9 @@ public class DungeonRunner extends Application {
                     timer.stop();
                     showGameOverOverlay("Pobegli ste!", Color.GOLD);
                 }
+
+                elapsedTimeDisplay.update(t);
+                minimap.update(player, key);
             }
         };
         timer.start ( );
