@@ -13,12 +13,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class DungeonRunner extends Application {
 
@@ -29,9 +34,14 @@ public class DungeonRunner extends Application {
     private Group cameraMount;
     private PointLight torch;
     private AnimationTimer timer;
+
     private List<CircularSaw> saws;
     private List<FloorSpike> spikes;
+
     private HealthIndicator healthIndicator;
+
+    private StackPane overlay;
+    private Text overlayText;
 
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
@@ -111,6 +121,12 @@ public class DungeonRunner extends Application {
                 }
             }
         }
+    }
+
+    private void showGameOverOverlay(String message, Color textColor) {
+        this.overlayText.setText(message);
+        this.overlayText.setFill(textColor);
+        this.overlay.setVisible(true);
     }
 
     private void setupLighting ( ) {
@@ -227,7 +243,16 @@ public class DungeonRunner extends Application {
         sub3D.setCamera ( this.camera );
 
         this.healthIndicator = new HealthIndicator(this.player.getHealth());
-        StackPane root = new StackPane(sub3D, this.healthIndicator.getNode());
+
+        // GAME OVER / VICTORY OVERLAY
+        this.overlayText = new Text();
+        this.overlayText.setFont(Font.font("Arial", FontWeight.BOLD, 52.0));
+        Rectangle backdrop = new Rectangle(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, Color.rgb(0, 0, 0, 0.65));
+        this.overlay = new StackPane(backdrop, this.overlayText);
+        this.overlay.setVisible(false);
+
+        // pravljenje HUD-a
+        StackPane root = new StackPane(sub3D, this.healthIndicator.getNode(), this.overlay);
         StackPane.setAlignment ( this.healthIndicator.getNode(), Pos.TOP_LEFT);
 
         Scene scene = new Scene (root, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT );
@@ -271,10 +296,13 @@ public class DungeonRunner extends Application {
                 if (player.getHealth() == 0) {
                     System.out.println("Game Over! Player has no more lives.");
                     timer.stop();
+                    showGameOverOverlay("Izgubili ste!", Color.DARKRED);
                 }
 
                 if (player.isAtExit(map)) {
-                    timer.stop ( );
+                    System.out.println("Congratulations! You've reached the exit.");
+                    timer.stop();
+                    showGameOverOverlay("Pobegli ste!", Color.GOLD);
                 }
             }
         };
