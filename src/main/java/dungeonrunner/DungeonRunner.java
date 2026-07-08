@@ -270,6 +270,10 @@ public class DungeonRunner extends Application {
 
         setupInput(scene);
 
+        if(key == null) {
+            player.setHasKey();
+            exitBox.setMaterial(exitMaterial);
+        }
         this.timer = new AnimationTimer ( ) {
             @Override
             public void handle ( long now ) {
