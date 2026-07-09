@@ -8,6 +8,7 @@ import dungeonrunner.hud.LevelSelector;
 import dungeonrunner.hud.Minimap;
 import dungeonrunner.items.Key;
 import dungeonrunner.items.Potion;
+import dungeonrunner.items.spawners.AuraCoinSpawner;
 import dungeonrunner.items.spawners.HeartSpawner;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
@@ -18,8 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -29,6 +29,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
 
 public class DungeonRunner extends Application {
@@ -59,10 +60,13 @@ public class DungeonRunner extends Application {
     private ElapsedTimeDisplay elapsedTimeDisplay;
 
     private HeartSpawner heartSpawner;
+    private AuraCoinSpawner auraCoinSpawner;
+
+    private Sphere shieldAura;
 
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
-        wallMaterial.setDiffuseMap(new Image(DungeonRunner.class.getResourceAsStream("bricks.jpg")));
+        wallMaterial.setDiffuseMap(new Image(Objects.requireNonNull(DungeonRunner.class.getResourceAsStream("bricks.jpg"))));
         wallMaterial.setSpecularColor ( Constants.WALL_SPECULAR_COLOR );
 
         exitMaterial = new PhongMaterial();
@@ -153,6 +157,7 @@ public class DungeonRunner extends Application {
         }
 
         this.heartSpawner = new HeartSpawner(this.map, this.world);
+        this.auraCoinSpawner = new AuraCoinSpawner(this.map, this.world);
     }
 
     private void showGameOverOverlay(String message, Color textColor) {
@@ -256,6 +261,13 @@ public class DungeonRunner extends Application {
         this.torch.getTransforms ( ).setAll ( torchTranslate );
     }
 
+    private void updateShieldAura() {
+        shieldAura.setTranslateX(player.getPositionX() * Constants.CELL_SIZE);
+        shieldAura.setTranslateY(0);
+        shieldAura.setTranslateZ(player.getPositionY() * Constants.CELL_SIZE);
+        shieldAura.setVisible(player.hasShield());
+    }
+
     @Override
     public void start ( Stage stage ) {
         LevelSelector selector = new LevelSelector(
@@ -273,7 +285,19 @@ public class DungeonRunner extends Application {
 
     public void startGame(Stage stage) {
         this.player = new Player ( Constants.PLAYER_START_X, Constants.PLAYER_START_Y );
-        this.world = new Group ( );
+
+        shieldAura = new Sphere(Constants.CELL_SIZE * 0.5);
+        PhongMaterial auraMaterial = new PhongMaterial();
+        auraMaterial.setDiffuseColor(Color.rgb(50, 150, 255, 0.25));
+        shieldAura.setMaterial(auraMaterial);
+        shieldAura.setOpacity(0.15);
+        shieldAura.setDrawMode(DrawMode.LINE);
+        shieldAura.setCullFace(CullFace.NONE);
+        shieldAura.setVisible(false);
+
+        this.world = new Group();
+        world.getChildren().add(shieldAura);
+        System.out.println(shieldAura.isVisible());
 
         buildDungeon ( );
         setupLighting ( );
@@ -330,7 +354,7 @@ public class DungeonRunner extends Application {
                 // Register hits from saws
                 for(CircularSaw saw : DungeonRunner.this.saws) {
                     saw.update(t);
-                    if(saw.hitsPlayer(player)) {
+                    if(saw.hitsPlayer(player) && !player.hasShield()) {
                         player.takeHit();
                         healthIndicator.update(player.getHealth());
                         System.out.println("Player hit by saw! (Life: " + player.getHealth() + ")");
@@ -341,7 +365,7 @@ public class DungeonRunner extends Application {
                 // Register hits from spikes
                 for(FloorSpike spike : DungeonRunner.this.spikes) {
                     spike.update(t);
-                    if(spike.hitsPlayer(player)) {
+                    if(spike.hitsPlayer(player) && !player.hasShield()) {
                         player.takeHit();
                         healthIndicator.update(player.getHealth());
                         System.out.println("Player hit by spike! (Life: " + player.getHealth() + ")");
@@ -385,6 +409,10 @@ public class DungeonRunner extends Application {
                 minimap.update(player, key, potions);
 
                 heartSpawner.update(t, player, healthIndicator);
+                auraCoinSpawner.update(t, player);
+
+                player.updateShield(t);
+                updateShieldAura();
             }
         };
         timer.start ( );

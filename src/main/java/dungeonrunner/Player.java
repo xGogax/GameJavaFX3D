@@ -26,6 +26,9 @@ public class Player {
     private boolean controlsInverted = false;
     private double controlsInvertedUntil;
 
+    private boolean shieldActive = false;
+    private double shieldUntil;
+
     public Player ( double startX, double startY ) {
         this.positionX = startX;
         this.positionY = startY;
@@ -44,11 +47,14 @@ public class Player {
     public double getDirectionY ( ) { return this.directionY; }
     public int getHealth() { return this.health; }
     public int getMaxHealth() { return this.maxHealth; }
+    public boolean isControlsInverted() { return controlsInverted; }
+    public boolean hasShield() { return shieldActive; }
 
     public void setMoveForward  ( boolean newValue ) { this.moveForward  = newValue; }
     public void setMoveBackward ( boolean newValue ) { this.moveBackward = newValue; }
     public void setRotateLeft   ( boolean newValue ) { this.rotateLeft   = newValue; }
     public void setRotateRight  ( boolean newValue ) { this.rotateRight  = newValue; }
+    public void setHasKey() { this.hasKey = true; }
 
     public void restartPosition() {
         this.positionX = this.startX;
@@ -60,15 +66,18 @@ public class Player {
     public void gainHealth() { this.health++; }
     public void takeHit() { this.health--; }
 
-    public void setHasKey() { this.hasKey = true; }
+    public void activateShield(double currentTime, double duration) {
+        shieldActive = true;
+        shieldUntil = currentTime + duration;
+    }
+
+    public void updateShield(double currentTime) {
+        if(shieldActive && currentTime > shieldUntil) shieldActive = false;
+    }
 
     public void applyControlInversion(double currentTime, double durationSeconds) {
         this.controlsInverted = true;
         this.controlsInvertedUntil = currentTime + durationSeconds;
-    }
-
-    public boolean isControlsInverted() {
-        return controlsInverted;
     }
 
     public void update ( DungeonMap map ) {
