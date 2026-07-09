@@ -3,6 +3,7 @@ package dungeonrunner.hud;
 import dungeonrunner.Constants;
 import dungeonrunner.DungeonMap;
 import dungeonrunner.Player;
+import dungeonrunner.enemies.Guard;
 import dungeonrunner.items.Key;
 import dungeonrunner.items.Potion;
 
@@ -38,13 +39,14 @@ public class Minimap {
     }
 
 
-    public void update(Player player, Key key, List<Potion> potions) {
+    public void update(Player player, Key key, List<Potion> potions, List<Guard> guards) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         clear(gc);
         drawMap(gc, key);
         drawKey(gc, key);
         drawPotions(gc, potions);
+        drawGuards(gc, guards);
         drawPlayer(gc, player);
     }
 
@@ -96,6 +98,17 @@ public class Minimap {
     }
 
 
+    private void drawGuards(GraphicsContext gc, List<Guard> guards) {
+        for (Guard guard : guards) {
+            double x = PAD + (guard.getWorldX() / Constants.CELL_SIZE) * TILE;
+            double y = PAD + (guard.getWorldZ() / Constants.CELL_SIZE) * TILE;
+
+            gc.setFill(Color.rgb(220, 20, 20));
+            gc.fillOval(x - 4, y - 4, 8, 8);
+        }
+    }
+
+
     private void drawCircle(GraphicsContext gc, int col, int row, Color color) {
         double x = PAD + col * TILE + TILE/2.0;
         double y = PAD + row * TILE + TILE/2.0;
@@ -106,7 +119,6 @@ public class Minimap {
 
 
     private void drawPlayer(GraphicsContext gc, Player player) {
-
         double px = PAD + player.getPositionX() * TILE;
         double py = PAD + player.getPositionY() * TILE;
 

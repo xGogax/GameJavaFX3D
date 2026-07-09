@@ -149,7 +149,7 @@ public class Player {
     private boolean isFree ( int x, int y, DungeonMap map ) {
         int tile = map.get ( x, y );
         if(tile == Constants.EXIT && !this.hasKey) return false;
-        return tile == Constants.EMPTY || tile == Constants.EXIT || tile==Constants.SAW || tile==Constants.SPIKE || tile==Constants.KEY || tile==Constants.POTION;
+        return tile == Constants.EMPTY || tile == Constants.EXIT || tile==Constants.SAW || tile==Constants.SPIKE || tile==Constants.KEY || tile==Constants.POTION || tile >= Constants.GUARD_MIN;
     }
 
     private void rotate ( double angle ) {

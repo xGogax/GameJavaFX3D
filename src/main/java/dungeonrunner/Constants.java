@@ -11,6 +11,10 @@ public class Constants {
     public static final int SPIKE = 5;
     public static final int KEY = 6;
     public static final int POTION = 7;
+
+    // PRVI GUARD JE DEFINISAN MINIMALNO BROJEM 10. PUTANJA JE SVAKI SLEDECI BROJ
+    // AKO SLEDECI BROJ NIJE +1 ONDA JE TO SLEDECI GUARD
+    public static final int GUARD_MIN = 10;
     
     public static int[][] MAP = MapSelector.TEST;
 

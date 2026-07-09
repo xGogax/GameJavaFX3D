@@ -2,6 +2,7 @@ package dungeonrunner;
 
 import dungeonrunner.enemies.CircularSaw;
 import dungeonrunner.enemies.FloorSpike;
+import dungeonrunner.enemies.Guard;
 import dungeonrunner.hud.ElapsedTimeDisplay;
 import dungeonrunner.hud.HealthIndicator;
 import dungeonrunner.hud.LevelSelector;
@@ -27,10 +28,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 public class DungeonRunner extends Application {
 
@@ -45,6 +43,7 @@ public class DungeonRunner extends Application {
     private List<CircularSaw> saws;
     private List<FloorSpike> spikes;
     private List<Potion> potions;
+    private List<Guard> guards;
 
     private HealthIndicator healthIndicator;
 
@@ -83,6 +82,7 @@ public class DungeonRunner extends Application {
         this.saws = new ArrayList<>();
         this.spikes = new ArrayList<>();
         this.potions = new ArrayList<>();
+        this.guards = new ArrayList<>();
 
         int    rows       = this.map.getRows ( );
         int    columns    = this.map.getCols ( );
@@ -109,6 +109,7 @@ public class DungeonRunner extends Application {
 
         this.world.getChildren ( ).addAll ( floor, ceiling );
 
+        Map<Integer, int[]> guardMarkerPositions = new TreeMap<>();
         for ( int row = 0; row < rows; row++ ) {
             for ( int column = 0; column < columns; column++ ) {
                 int tile = this.map.get ( column, row );
@@ -152,12 +153,46 @@ public class DungeonRunner extends Application {
                     Potion potion = new Potion(cx, cz, (double)(this.potions.size() / 2) * 0.35);
                     this.potions.add(potion);
                     this.world.getChildren().add(potion.getNode());
+                } else if (tile >= Constants.GUARD_MIN) {
+                    guardMarkerPositions.put(tile, new int[]{column, row});
                 }
             }
         }
 
         this.heartSpawner = new HeartSpawner(this.map, this.world);
         this.auraCoinSpawner = new AuraCoinSpawner(this.map, this.world);
+
+        this.guards.addAll(buildGuardsFromMarkers(guardMarkerPositions));
+        for (Guard guard : this.guards) {
+            this.world.getChildren().add(guard.getNode());
+        }
+    }
+
+    private List<Guard> buildGuardsFromMarkers(Map<Integer, int[]> markers) {
+        List<Guard> result = new ArrayList<>();
+        List<Integer> sortedIds = new ArrayList<>(markers.keySet());
+        java.util.Collections.sort(sortedIds);
+
+        List<int[]> currentPath = new ArrayList<>();
+        int previousId = Integer.MIN_VALUE;
+
+        for (int id : sortedIds) {
+            boolean isConsecutive = (id == previousId + 1);
+
+            if (!isConsecutive && !currentPath.isEmpty()) {
+                result.add(new Guard(currentPath));
+                currentPath = new ArrayList<>();
+            }
+
+            currentPath.add(markers.get(id));
+            previousId = id;
+        }
+
+        if (currentPath.size() >= 2) {
+            result.add(new Guard(currentPath));
+        }
+
+        return result;
     }
 
     private void showGameOverOverlay(String message, Color textColor) {
@@ -297,7 +332,6 @@ public class DungeonRunner extends Application {
 
         this.world = new Group();
         world.getChildren().add(shieldAura);
-        System.out.println(shieldAura.isVisible());
 
         buildDungeon ( );
         setupLighting ( );
@@ -373,6 +407,18 @@ public class DungeonRunner extends Application {
                     }
                 }
 
+                // Register guard hit
+                for(Guard guard : DungeonRunner.this.guards) {
+                    guard.update(t);
+                    if (guard.hitsPlayer(player) && !player.hasShield()) {
+                        player.takeHit();
+                        healthIndicator.update(player.getHealth());
+                        System.out.println("Player caught by guard! (Life: " + player.getHealth() + ")");
+                        player.restartPosition();
+                    }
+                }
+
+                // Register potion hit
                 for(Potion potion : DungeonRunner.this.potions) {
                     potion.update(t);
                     if(potion.tryCollect(player)) {
@@ -406,7 +452,7 @@ public class DungeonRunner extends Application {
                 }
 
                 elapsedTimeDisplay.update(t);
-                minimap.update(player, key, potions);
+                minimap.update(player, key, potions, guards);
 
                 heartSpawner.update(t, player, healthIndicator);
                 auraCoinSpawner.update(t, player);
