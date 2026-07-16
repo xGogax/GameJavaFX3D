@@ -24,4 +24,6 @@ public class DungeonMap {
     public int get ( int x, int y ) {
         return this.map[y][x];
     }
+
+    public void set ( int x, int y, int value ) { this.map[y][x] = value; }
 }

@@ -11,6 +11,8 @@ import dungeonrunner.items.Key;
 import dungeonrunner.items.Potion;
 import dungeonrunner.items.spawners.AuraCoinSpawner;
 import dungeonrunner.items.spawners.HeartSpawner;
+import dungeonrunner.tiles.DoorSwitch;
+import dungeonrunner.tiles.DoorSystem;
 import dungeonrunner.tiles.Pillar;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -62,6 +64,8 @@ public class DungeonRunner extends Application {
     private AuraCoinSpawner auraCoinSpawner;
 
     private Sphere shieldAura;
+
+    private DoorSystem doorSystem;
 
     private void buildDungeon ( ) {
         PhongMaterial wallMaterial = new PhongMaterial ( );
@@ -161,6 +165,8 @@ public class DungeonRunner extends Application {
 
         this.heartSpawner = new HeartSpawner(this.map, this.world);
         this.auraCoinSpawner = new AuraCoinSpawner(this.map, this.world);
+        this.doorSystem = new DoorSystem(this.map, this.world);
+        this.doorSystem.build((int) Constants.PLAYER_START_X, (int) Constants.PLAYER_START_Y);
 
         this.guards.addAll(buildGuardsFromMarkers(guardMarkerPositions));
         for (Guard guard : this.guards) {
@@ -437,6 +443,11 @@ public class DungeonRunner extends Application {
                             exitBox.setMaterial(exitMaterial);
                         }
                     }
+                }
+
+                //Doors
+                for (DoorSwitch doorSwitch : doorSystem.getSwitches()) {
+                    doorSwitch.update(player);
                 }
 
                 if (player.getHealth() == 0) {

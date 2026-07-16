@@ -11,6 +11,7 @@ public class Constants {
     public static final int SPIKE = 5;
     public static final int KEY = 6;
     public static final int POTION = 7;
+    public static final int DOOR = 8;
 
     // PRVI GUARD JE DEFINISAN MINIMALNO BROJEM 10. PUTANJA JE SVAKI SLEDECI BROJ
     // AKO SLEDECI BROJ NIJE +1 ONDA JE TO SLEDECI GUARD
